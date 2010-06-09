@@ -16,6 +16,7 @@ function handleMessage(msgEvent) {
 	var messageName = msgEvent.name;
 	var messageData = msgEvent.message;
 	if (messageName === 'save') {
+		console.log(msgEvent);
 		var newdiv = document.createElement('div');
 		newdiv.setAttribute('id', 'ws-popup-container');
 		newdiv.innerHTML = messageData;

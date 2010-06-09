@@ -39,7 +39,8 @@ PinSafari.performCommand = function(event)
       event.target.browserWindow.activeTab.page.dispatchMessage("addtopinboard_get_selection","");
       
       var pbHtml = document.open('http://pinboard.in/add?next=same&url=&description=&title=');
-      code = '';
+      var pbForm = pbHtml.getElementsByTagName('form');
+      code = ''
     	code += '<style type="text/css">';
     	code += '#ws-popup { position: fixed; right: 10px; top: 10px; background-color: rgba( 0,0,0, 0.9); border: 1px solid black; -webkit-border-radius: 5px; width: 300px; color: white !important; font-family: "Arial", sans-serif; font-size: 12px; z-index: 999999; line-height: 1.5em;  min-height: 160px; }';
     	code += '#ws-popup div.text { width: 100%; margin: 20px 10px; }';
@@ -49,9 +50,17 @@ PinSafari.performCommand = function(event)
     	code += '</style>';
     	code += '<div id="ws-popup">';
     	code += '<div class="text">';
-    	code += '<h2><img src="star.png" />Add to Pinboard</h2>';
-    	code += '<div id="ws-form"></div>';
-    	code += pbHtml.getElementsByTagName('form');
+      if (pbForm.empty()) { // TODO: Something to that effect.
+        code += '<h2><img src="fail.png" />Failed to Connect</h2>';
+        code += '<div id="ws-empty">';
+        code += '<p>You are not connected to the internet. Or, maybe pinboard.in is down.</p>';
+        code += '</div>';
+      } else {
+        code += '<h2><img src="star.png" />Add to Pinboard</h2>';
+      	code += '<div id="ws-form">';
+      	code += pbHtml.getElementsByTagName('form');
+      	code += '</div>';
+  	  }
     	code += '</div>';
     	code += '</div>';
 
@@ -92,7 +101,7 @@ PinSafari.respondToMessage = function(messageEvent)
     PinSafari.itemURL = safari.application.activeBrowserWindow.activeTab.url;
     PinSafari.itemTitle = safari.application.activeBrowserWindow.activeTab.title;     
     PinSafari.itemDescription = String(messageEvent.message);
-    PinSafari.openPinboardWindow();
+    //PinSafari.openPinboardWindow();
     return;
   }
   else
