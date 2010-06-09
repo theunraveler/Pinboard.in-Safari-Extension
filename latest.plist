@@ -10,9 +10,9 @@
        <key>Team Identifier</key>
        <string>JRNC3MYT5P</string>
        <key>CFBundleVersion</key>
-       <string>1</string>
+       <string>1.1.0</string>
        <key>CFBundleShortVersionString</key>
-       <string>1.0</string>
+       <string>1.1.0</string>
        <key>URL</key>
        <string>http://github.com/downloads/theunraveler/Pinboard.in-Safari-Extension/pinsafari.safariextz</string>
      </dict>

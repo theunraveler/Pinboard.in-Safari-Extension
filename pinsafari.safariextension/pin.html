@@ -2,45 +2,108 @@
 <title>PinSafari</title>
 
 <script type="text/javascript">
-function performCommand(event) 
-{
-  if (event.command == 'pinsafari') {
 
-    var itemUrl = event.target.browserWindow.activeTab.url;
-    //var selection = event.target.browserWindow.activeTab.getSelection();
-    var itemTitle = event.target.browserWindow.activeTab.title; 
-    var pbHtml = document.open('http://pinboard.in/add?next=same&url=&description=&title=');
-    code = '';
-  	code += '<style type="text/css">';
-  	code += '#ws-popup { position: fixed; right: 10px; top: 10px; background-color: rgba( 0,0,0, 0.9); border: 1px solid black; -webkit-border-radius: 5px; width: 300px; color: white !important; font-family: "Arial", sans-serif; font-size: 12px; z-index: 999999; line-height: 1.5em;  min-height: 160px; }';
-  	code += '#ws-popup div.text { width: 100%; margin: 20px 10px; }';
-  	code += '#ws-popup h3 { font-size: 14px; margin: 5px 0 10px 0; color: white !important; line-height: 1.5em; padding: 0; }';
-  	code += '#ws-popup p { color: white !important; line-height: 1.5em; padding: 0; margin: 0; }';
-  	code += '#ws-popup a.closebutton { display: inline-block; outline: none; cursor: pointer; text-align: center; text-decoration: none; padding: .25em 1em .25em; text-shadow: 0 1px 1px rgba(0,0,0,.3); -webkit-border-radius: .5em; -webkit-box-shadow: 0 1px 2px rgba(0,0,0,.2); color: #fef4e9; border: solid 1px #da7c0c; background: #f78d1d; }';
-  	code += '</style>';
-  	code += '<div id="ws-popup">';
-  	code += '<div class="text">';
-  	code += '<h2><img src="star.png" />Add to Pinboard</h2>';
-  	code += '<div id="ws-form"></div>';
-  	code += pbHtml.getElementsByTagName('form');
-  	code += '</div>';
-  	code += '</div>';
-  	
-  	safari.application.activeBrowserWindow.activeTab.page.dispatchMessage("save", code);
-  	
-  	event.target.disabled = true;
+PinSafari = new Object; // I'm not sure, do we need to namespace work?
+
+PinSafari.itemURL = '';
+PinSafari.itemTitle = '';
+PinSafari.itemDescription = '';
+
+/*
+ * seems like eventually it'd be nice to have a toggle between using the inline or popup
+ */
+PinSafari.openPinboardWindow = function() {
+
+  /* as a heads up, the itemDescription is already URI encoded when 
+   * passed back from the message event listener
+   */
+  safari.application.activeBrowserWindow.activeTab.url =
+    'http://pinboard.in/add?next=same&url='+encodeURIComponent(PinSafari.itemURL)+
+    '&description='+PinSafari.itemDescription+
+    '&title='+encodeURIComponent(PinSafari.itemTitle);
+};
+
+PinSafari.performCommand = function(event)
+{
+  if (event.command === 'pinsafari')
+  {
+    // Get the current tab's URL
+    var itemUrl = event.target.browserWindow.activeTab.url; 
+
+    // There's nothing to do if there's no URL
+	if (itemUrl)
+	{        
+      /*
+       * dispatch a message to the current page where an injected script is listening
+       */
+      event.target.browserWindow.activeTab.page.dispatchMessage("addtopinboard_get_selection","");
+      
+      var pbHtml = document.open('http://pinboard.in/add?next=same&url=&description=&title=');
+      code = '';
+    	code += '<style type="text/css">';
+    	code += '#ws-popup { position: fixed; right: 10px; top: 10px; background-color: rgba( 0,0,0, 0.9); border: 1px solid black; -webkit-border-radius: 5px; width: 300px; color: white !important; font-family: "Arial", sans-serif; font-size: 12px; z-index: 999999; line-height: 1.5em;  min-height: 160px; }';
+    	code += '#ws-popup div.text { width: 100%; margin: 20px 10px; }';
+    	code += '#ws-popup h3 { font-size: 14px; margin: 5px 0 10px 0; color: white !important; line-height: 1.5em; padding: 0; }';
+    	code += '#ws-popup p { color: white !important; line-height: 1.5em; padding: 0; margin: 0; }';
+    	code += '#ws-popup a.closebutton { display: inline-block; outline: none; cursor: pointer; text-align: center; text-decoration: none; padding: .25em 1em .25em; text-shadow: 0 1px 1px rgba(0,0,0,.3); -webkit-border-radius: .5em; -webkit-box-shadow: 0 1px 2px rgba(0,0,0,.2); color: #fef4e9; border: solid 1px #da7c0c; background: #f78d1d; }';
+    	code += '</style>';
+    	code += '<div id="ws-popup">';
+    	code += '<div class="text">';
+    	code += '<h2><img src="star.png" />Add to Pinboard</h2>';
+    	code += '<div id="ws-form"></div>';
+    	code += pbHtml.getElementsByTagName('form');
+    	code += '</div>';
+    	code += '</div>';
+
+    	event.target.browserWindow.activeTab.page.dispatchMessage("save", code);
+
+    	event.target.disabled = true;
+    }
   }
-  
+  else
+  {  
+    // unknown command
+    return;
+  }  
 }
 
-function validateCommand(event)
+PinSafari.validateCommand = function(event)
 {
   if (event.command === 'pinsafari') {
     event.target.disabled = !event.target.browserWindow.activeTab.url;
   }
+  else
+  {
+    // unknown command
+    return;  
+  }
 }
 
-safari.application.addEventListener('command', performCommand, false);
-safari.application.addEventListener('validate', validateCommand, false);
+PinSafari.respondToMessage = function(messageEvent)
+{
+  if(messageEvent.name === "addtopinboard_get_selection")
+  {
+    /*
+     * receives a message from the current page where the injected text selection script is listening
+     */
+    
+    // do we need massage messageEvent.message? does pinboard.in have a description max char?
+     
+    PinSafari.itemURL = safari.application.activeBrowserWindow.activeTab.url;
+    PinSafari.itemTitle = safari.application.activeBrowserWindow.activeTab.title;     
+    PinSafari.itemDescription = String(messageEvent.message);
+    PinSafari.openPinboardWindow();
+    return;
+  }
+  else
+  {
+    //unknown messageEvent
+    return 
+  }
+}
+
+safari.application.addEventListener("message",PinSafari.respondToMessage,false);
+safari.application.addEventListener('command',PinSafari.performCommand, false);
+safari.application.addEventListener('validate',PinSafari.validateCommand, false);
 
 </script>

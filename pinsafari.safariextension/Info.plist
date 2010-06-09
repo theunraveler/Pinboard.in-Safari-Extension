@@ -11,9 +11,9 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.0</string>
+	<string>1.1.0</string>
 	<key>CFBundleVersion</key>
-	<string>1</string>
+	<string>1.1.0</string>
 	<key>Chrome</key>
 	<dict>
 		<key>Global Page</key>
@@ -45,6 +45,10 @@
   			<key>Start</key>
   			<array>
   				<string>popup.js</string>
+  			</array>
+  			<key>End</key>
+  			<array>
+  				<string>get_selection.js</string>
   			</array>
   		</dict>
 	</dict>
