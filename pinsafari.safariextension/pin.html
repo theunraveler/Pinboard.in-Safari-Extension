@@ -12,15 +12,46 @@ PinSafari.itemDescription = '';
 /*
  * seems like eventually it'd be nice to have a toggle between using the inline or popup
  */
-PinSafari.openPinboardWindow = function() {
+PinSafari.openPinboardWindow = function(event) {
 
   /* as a heads up, the itemDescription is already URI encoded when 
    * passed back from the message event listener
    */
-  safari.application.activeBrowserWindow.activeTab.url =
-    'http://pinboard.in/add?next=same&url='+encodeURIComponent(PinSafari.itemURL)+
-    '&description='+PinSafari.itemDescription+
-    '&title='+encodeURIComponent(PinSafari.itemTitle);
+  
+  code = ''
+	code += '<style type="text/css">';
+	code += '#ws-popup { position: fixed; right: 10px; top: 10px; background-color: rgba( 0,0,0, 0.9); border: 1px solid black; -webkit-border-radius: 5px; width: 300px; color: white !important; font-family: "Arial", sans-serif; font-size: 12px; z-index: 999999; line-height: 1.5em;  min-height: 160px; }';
+	code += '#ws-popup div.text { width: 100%; margin: 20px 10px; }';
+	code += '#ws-popup h3 { font-size: 14px; margin: 5px 0 10px 0; color: white !important; line-height: 1.5em; padding: 0; }';
+	code += '#ws-popup p { color: white !important; line-height: 1.5em; padding: 0; margin: 0; }';
+	code += '#ws-popup .button { display: inline-block; outline: none; cursor: pointer; text-align: center; text-decoration: none; padding: .25em 1em .25em; text-shadow: 0 1px 1px rgba(0,0,0,.3); -webkit-border-radius: .5em; -webkit-box-shadow: 0 1px 2px rgba(0,0,0,.2); color: #fef4e9; }';
+	code += '.button.submit { background: #0c0; border: 1px solid #0c3; }';
+	code += '.button.close { background: #c00; border: 1px solid #f00; }';
+	code += '</style>';
+	code += '<div id="ws-popup">';
+	code += '<div class="text">';
+  code += '<h2><img src="star.png" />Add to Pinboard</h2>';
+  code += '<div id="ws-form">';
+  code += '<form method="post" action="http://pinboard.in/add">';
+  code += '<input type="hidden" name="next" value="same" />';
+  code += '<input type="hidden" name="form_token" value="6cdc45481ac43bdafc3160d6ab7e5f535c939abd" />';
+  code += '<label for="pb_title">Title</label>';
+  code += '<input id="pb_title" type="text" name="title" size="40" value="'+PinSafari.itemTitle+'" /><br />';
+  code += '<label for="pb_url">URL</label>';
+  code += '<input id="pb_url" type="text" name="url" size="40" value="'+PinSafari.itemURL+'" /><br />';
+  code += '<label for="pb_desc">Description</label>';
+  code += '<textarea id="pb_desc" name="description" rows="3" cols="40">'+PinSafari.itemDescription+'</textarea><br />';
+  code += '<input type="submit" class="button submit" value="Save" />';
+  code += '<a href="javascript:void(0);" id="ws-close-button" class="button close">Cancel</a>';
+  code += '</form>';
+  code += '</div>';
+	code += '</div>';
+	code += '</div>';
+
+	event.target.browserWindow.activeTab.page.dispatchMessage("save", code);
+
+	event.target.disabled = true;
+	
 };
 
 PinSafari.performCommand = function(event)
@@ -38,35 +69,6 @@ PinSafari.performCommand = function(event)
        */
       event.target.browserWindow.activeTab.page.dispatchMessage("addtopinboard_get_selection","");
       
-      var pbHtml = document.open('http://pinboard.in/add?next=same&url=&description=&title=');
-      var pbForm = pbHtml.getElementsByTagName('form');
-      code = ''
-    	code += '<style type="text/css">';
-    	code += '#ws-popup { position: fixed; right: 10px; top: 10px; background-color: rgba( 0,0,0, 0.9); border: 1px solid black; -webkit-border-radius: 5px; width: 300px; color: white !important; font-family: "Arial", sans-serif; font-size: 12px; z-index: 999999; line-height: 1.5em;  min-height: 160px; }';
-    	code += '#ws-popup div.text { width: 100%; margin: 20px 10px; }';
-    	code += '#ws-popup h3 { font-size: 14px; margin: 5px 0 10px 0; color: white !important; line-height: 1.5em; padding: 0; }';
-    	code += '#ws-popup p { color: white !important; line-height: 1.5em; padding: 0; margin: 0; }';
-    	code += '#ws-popup a.closebutton { display: inline-block; outline: none; cursor: pointer; text-align: center; text-decoration: none; padding: .25em 1em .25em; text-shadow: 0 1px 1px rgba(0,0,0,.3); -webkit-border-radius: .5em; -webkit-box-shadow: 0 1px 2px rgba(0,0,0,.2); color: #fef4e9; border: solid 1px #da7c0c; background: #f78d1d; }';
-    	code += '</style>';
-    	code += '<div id="ws-popup">';
-    	code += '<div class="text">';
-      if (pbForm.empty()) { // TODO: Something to that effect.
-        code += '<h2><img src="fail.png" />Failed to Connect</h2>';
-        code += '<div id="ws-empty">';
-        code += '<p>You are not connected to the internet. Or, maybe pinboard.in is down.</p>';
-        code += '</div>';
-      } else {
-        code += '<h2><img src="star.png" />Add to Pinboard</h2>';
-      	code += '<div id="ws-form">';
-      	code += pbHtml.getElementsByTagName('form');
-      	code += '</div>';
-  	  }
-    	code += '</div>';
-    	code += '</div>';
-
-    	event.target.browserWindow.activeTab.page.dispatchMessage("save", code);
-
-    	event.target.disabled = true;
     }
   }
   else
@@ -101,7 +103,7 @@ PinSafari.respondToMessage = function(messageEvent)
     PinSafari.itemURL = safari.application.activeBrowserWindow.activeTab.url;
     PinSafari.itemTitle = safari.application.activeBrowserWindow.activeTab.title;     
     PinSafari.itemDescription = String(messageEvent.message);
-    //PinSafari.openPinboardWindow();
+    PinSafari.openPinboardWindow(messageEvent);
     return;
   }
   else
