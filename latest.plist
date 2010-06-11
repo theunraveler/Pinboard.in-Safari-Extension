@@ -7,7 +7,7 @@
      <dict>
        <key>CFBundleIdentifier</key>
        <string>com.iamtheunraveler.pinsafari</string>
-       <key>Team Identifier</key>
+       <key>Developer Identifier</key>
        <string>JRNC3MYT5P</string>
        <key>CFBundleVersion</key>
        <string>1.1.0</string>
