@@ -111,18 +111,8 @@ PinSafari.respondToMessage = function(messageEvent)
   }
 }
 
-PinSafari.storeUserAndPass = function(event) {
-  if (event.key === 'pinboardUser') {
-    localStorage.setItem('pinboardUser', event.newValue);
-  }
-  if (event.key === 'pinboardPass') {
-    localStorage.setItem('pinboardPass', event.newValue);
-  }
-}
-
 safari.application.addEventListener("message",PinSafari.respondToMessage,false);
 safari.application.addEventListener('command',PinSafari.performCommand, false);
 safari.application.addEventListener('validate',PinSafari.validateCommand, false);
-safari.application.addEventListener('change',PinSafari.storeUserAndPass,false);
 
 </script>

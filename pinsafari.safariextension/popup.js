@@ -19,8 +19,8 @@ function wsSubmitRequest(event) {
 }
 
 function makePostRequest(postUrl, params) {
-	var username = localStorage.getItem('pinboardUser');
-	var password = localStorage.getItem('pinboardPass');
+	var username = safari.extension.secureSettings.pinboardUser;
+	var password = safari.extension.secureSettings.pinboardPass;
 	
 	http_request = false;
 	try { 
