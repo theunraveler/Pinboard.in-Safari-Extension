@@ -17,7 +17,7 @@ PinSafari.openPinboardWindow = function() {
    * passed back from the message event listener
    */
   safari.application.activeBrowserWindow.activeTab.url =
-    'http://pinboard.in/add?next=same&url='+encodeURIComponent(PinSafari.itemURL)+
+    'https://pinboard.in/add?next=same&url='+encodeURIComponent(PinSafari.itemURL)+
     '&description='+PinSafari.itemDescription+
     '&title='+encodeURIComponent(PinSafari.itemTitle);
 };
